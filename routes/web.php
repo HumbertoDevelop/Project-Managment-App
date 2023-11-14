@@ -25,4 +25,5 @@ Route::middleware([
     Route::get('/projects', function () {
         return view('admindashboard');
     })->name('projects');
+    
 });
