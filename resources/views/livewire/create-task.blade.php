@@ -1,6 +1,8 @@
 <div>
-    <div>
-        {{-- @csrf --}}
+    <div class="container shadow-xl p-4 rounded-md bg-gray-200">
+        <h2 class="font-semibold text-xl text-gray-800 leading-tight mb-3">
+            {{ __('Form Task') }}
+        </h2>
         <div class="grid grid-cols-1">
             <label>
                 Description task

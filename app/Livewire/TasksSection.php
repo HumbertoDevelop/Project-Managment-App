@@ -3,7 +3,6 @@
 namespace App\Livewire;
 
 use App\Models\Task;
-use Livewire\Attributes\On;
 use Livewire\Component;
 
 class TasksSection extends Component
@@ -14,33 +13,24 @@ class TasksSection extends Component
     public $badges = array();
 
     // Define listeners for various events
-    public function getListeners()
-    {
-        return [
-            'taskAdded' => 'refreshTasks',
-            'updateAdded',
-            'openModalTasks',
-            'closeModalTasks',
-        ];
-    }
+    protected $listeners = [
+        'taskAdded' => 'refreshTasks',
+        'taskEdited' => 'taskEdited',
+        'openModalTasks' => 'openModalTasks',
+        'closeModalTasks' => 'closeModalTasks',
+    ];
 
-    // Clean up IDs
-    public function cleaningIds()
+    // Handle task edited event
+    public function taskEdited()
     {
-        $this->dispatch('cleaningIds');
-    }
-
-    // Handle task added event
-    public function updateAdded()
-    {
-        session()->flash('messageEvent', 'Task updated successfully');
+        session()->flash('messageEvent', 'Task edited successfully.');
         $this->refreshTasks();
     }
 
     // Handle task added event
     public function taskAdded()
     {
-        session()->flash('messageEvent', 'Task added successfully');
+        session()->flash('messageEvent', 'Task added successfully.');
         $this->refreshTasks();
     }
 
@@ -51,7 +41,6 @@ class TasksSection extends Component
     }
 
     // Handle open modal event
-    #[On('openModalTasks')]
     public function openModalTasks($openTasks)
     {
         $this->openModalTask = $openTasks;
@@ -61,7 +50,7 @@ class TasksSection extends Component
     public function delete(Task $task): void
     {
         $task->delete();
-        $this->mount();
+        $this->refreshTasks();
     }
 
     // Edit a task
@@ -80,12 +69,10 @@ class TasksSection extends Component
     public function refreshTasks()
     {
         // Get updated tasks
-        $this->tasks = Task::with('users')
-            ->get();
+        $this->tasks = Task::with('users')->get();
     }
 
     // Cancel editing a task
-    #[On('task-edit-canceled')]
     public function cancelEdit(): void
     {
         $this->editingTaskId = null;

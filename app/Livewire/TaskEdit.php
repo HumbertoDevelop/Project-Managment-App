@@ -41,10 +41,10 @@ class TaskEdit extends Component
             $user = User::where('email', '=', $this->search)->first();
 
             if ($user) {
-                // Agregar colaborador al array
+                // Add collaborator to the array
                 array_push($this->badges, [$user]);
             } else {
-                // Mostrar mensaje de error
+                // Show error message
                 session()->flash('userNotFound', 'User not found in database');
             }
         } catch (\Exception $e) {
@@ -52,8 +52,23 @@ class TaskEdit extends Component
         }
     }
 
+    //Cleaning inputs
+    public function clearInputs()
+    {
+        $this->reset('title');
+        $this->reset('description');
+        $this->reset('due_date');
+        $this->reset('completed');
+    }
+
+    //Cleaning ids
+    public function clearIds()
+    {
+        $this->reset('task');
+    }
+
     // Function to update task
-    public function updateTask(): void
+    public function updateTask(int $taskId): void
     {
         // Validate the request data
         $this->validate([
@@ -65,9 +80,10 @@ class TaskEdit extends Component
         // Check if task is completed
         $this->completed = $this->completed ? 1 : 0;
 
-        // Find the task by ID and update it
-        $task = Task::findOrFail($this->task);
-        $task->update([
+        // Find the project
+        $this->task = Task::find($taskId);
+        //Update task
+        $this->task->update([
             'title' => $this->title,
             'description' => $this->description,
             'due_date' => $this->due_date,
@@ -75,10 +91,14 @@ class TaskEdit extends Component
         ]);
 
         // Get the user IDs from the badges array
-        $userIds = collect($this->badges)->pluck(0)->toArray();
-
+        $userIds = collect($this->badges)->pluck('0.id')->toArray();
         // Sync the users associated with the task
-        $task->users()->sync($userIds);
+        $this->task->users()->sync($userIds);
+
+        $this->dispatch('taskEdited')->to(TasksSection::class);
+        $this->clearInputs();
+        $this->clearIds();
+        $this->cancel();
     }
 
     // Deleting collaborators from project

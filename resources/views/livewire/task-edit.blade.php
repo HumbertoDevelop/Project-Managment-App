@@ -1,5 +1,5 @@
 <div>
-    <div>
+    <div class="container shadow-xl p-4 rounded-md bg-white">
         <div class="grid grid-cols-1 py-5">
             <label>
                 Description task
@@ -28,6 +28,7 @@
                     <p class="text-red-500 text-xs mt-3 block">{{ $message }}</p>
                 @enderror
             </label>
+            @role('productManager')
             <div class="md:col-span-5 mb-3">
                 <label class="sr-only">Add Collaborator</label>
                 <input type="text" name="search" id="search" wire:model="search"
@@ -42,6 +43,7 @@
                 @endif
 
             </div>
+            @endrole
         </div>
         <div class="grid grid-cols-1 my-3">
             <label class="mb-2 block">Task complete

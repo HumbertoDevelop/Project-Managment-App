@@ -8,16 +8,18 @@
             <div class="container max-w-screen-lg mx-auto">
                 {{-- Input component --}}
 
-                @role('productManager')
+                @role(['productManager','admin'])
                     <livewire:create-task>
                     @endrole
-                    @if (session()->has('messageEvent'))
-                        <div class="bg-sky-600 text-white p-4 mt-2 text-center" id="messageEvent">
-                            <h3>{{ session()->get('messageEvent') }}</h3>
-                        </div>
-                    @endif
+
                     <div>
-                        <div class="mt-6 bg-white shadow-sm rounded-lg divide-y" style="height: 300px; overflow: auto;"">
+                        <div class="mt-6 bg-gray-200 shadow-sm rounded-lg divide-y"
+                            style="height: 300px; overflow: auto;"">
+                            @if (session()->has('messageEvent'))
+                                <div class="bg-sky-600 text-white p-4 mt-2 text-center" id="messageEvent">
+                                    <h3>{{ session()->get('messageEvent') }}</h3>
+                                </div>
+                            @endif
                             @forelse ($tasks as $task)
                                 <div class="p-6 flex space-x-2" wire:key="{{ $task->id }}">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-600 -scale-x-100"
@@ -38,13 +40,11 @@
                                                     <small class="text-md text-green-600">
                                                         {{ __('Complete') }}</small>
                                                 @endunless
-                                                @unless ($task->created_at->eq($task->updated_at))
-                                                    <small class="text-sm text-gray-600"> &middot;
-                                                        {{ __('edited') }}</small>
-                                                @endunless
                                                 <p>{{ $task->description }}</p>
                                         </div>
-                                        @if (auth()->user() && $task->completed === 0)
+                                        @if ($task->completed === 0 &&
+                                                $task->users->contains(auth()->user()->id) || ($task->users->contains(auth()->user()->hasRole('admin')) && $task->completed === 1) || $task->users->contains(auth()->user()->hasRole('admin')))
+
                                             <x-dropdown dropdown>
                                                 <x-slot name="trigger">
                                                     <button>
@@ -57,14 +57,13 @@
                                                     </button>
                                                 </x-slot>
                                                 <x-slot name="content">
-
-                                                    @role(['collaborator', 'productManager'])
+                                                    @role(['collaborator', 'productManager','admin'])
                                                         <x-dropdown-link wire:model="editTask.{{ $task->id }}"
                                                             wire:click="edit({{ $task }})">
                                                             {{ __('Edit') }}
                                                         </x-dropdown-link>
                                                     @endrole
-                                                    @role('productManager')
+                                                    @role(['productManager','admin'])
                                                         <x-dropdown-link wire:model="deleteTask.{{ $task->id }}"
                                                             wire:click="delete({{ $task->id }})">
                                                             {{ __('Delete') }}

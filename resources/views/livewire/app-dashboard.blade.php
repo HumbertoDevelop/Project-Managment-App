@@ -156,7 +156,7 @@
                     <div class="flex flex-col max-w-6xl min-w-6xl md:grid grid-cols-4 justify-center items-center m-2">
                         @forelse ($projects as $project)
                             <div wire:key='{{ $project->id }}'
-                                class="py-4 bg-white m-4 shadow-xl h-72 min-h-72 w-72 min-w-72 flex flex-col justify-center text-black hover:text-white hover:bg-stone-700 hover:scale-105 ">
+                                class="py-4 bg-white m-4 shadow-xl h-72 min-h-72 w-72 min-w-72 flex flex-col justify-center text-black hover:bg-gray-200 hover:scale-105 ">
                                 <div class="m-8 h-32">
                                     <div class="m-2">
                                         <h1 class="text-xl ">
@@ -169,8 +169,7 @@
                                             {{ __('Details') }}
                                         </x-button>
                                     @endrole
-
-                                    @role(['productManager','admin','collaborator'])
+                                    @role(['productManager', 'admin', 'collaborator'])
                                         <x-general-button class="ml-4" wire:click='openModalTasks({{ $project->id }})'>
                                             {{ __('Tasks') }}
                                         </x-general-button>

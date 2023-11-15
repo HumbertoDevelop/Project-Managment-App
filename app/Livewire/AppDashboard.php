@@ -9,6 +9,7 @@ use Livewire\Component;
 
 class AppDashboard extends Component
 {
+    // Declare public variables
     public $openEdit = false;
     public $openCreate = false;
     public $openTasks = false;
@@ -25,6 +26,7 @@ class AppDashboard extends Component
     public $search;
     public $project;
 
+    // Define listeners for various events
     public function getListeners()
     {
         return [
@@ -32,67 +34,70 @@ class AppDashboard extends Component
         ];
     }
 
-    //Cleaning inputs
+    // Function to clear input fields
     public function clearInputs()
     {
         $this->reset('title');
         $this->reset('description');
     }
 
-    //Opening create modal project
+    // Function to open the create modal
     public function openModalCreate()
     {
         $this->openCreate = true;
-        //Cleaning inputs
+        // Clear input fields
         $this->clearInputs();
         $this->cleaningIds();
     }
 
-    //Closing create modal project
+    // Function to close the create modal
     public function closeModalCreate()
     {
+        // Clear input fields
         $this->clearInputs();
 
         $this->openCreate = false;
     }
 
-    //Opening tasks modal project
+    // Function to open the tasks modal
     public function openModalTasks($id)
     {
-
         $this->idProject = $id;
         $this->openTasks = true;
+        // Dispatch events to open tasks and set the current project
         $this->dispatch('openModalTasks', openTasks: $this->openTasks)->to(TasksSection::class);
         $this->dispatch('thisProject', idProject: $this->idProject)->to(CreateTask::class);
     }
 
-    //Closing edit modal project
+    // Function to close the edit modal
     public function closeModalEdit()
     {
+        // Clear input fields and IDs
         $this->clearInputs();
         $this->cleaningIds();
 
         $this->openEdit = false;
     }
 
-    //Cleaning ids
+    // Function to clear IDs
     public function cleaningIds()
     {
         $this->reset('selectedProject');
         $this->reset('idProject');
     }
 
-    //Opening edit modal project
+    // Function to open the edit modal
     public function openModalEdit($id)
     {
         $this->openEdit = true;
         $this->idProject = $id;
+        // Find the selected project and set the title and description
         $this->selectedProject = Project::find($id);
         $this->title = $this->selectedProject->title;
         $this->description = $this->selectedProject->description;
     }
 
-    //Deleting project
+    // Function to delete a project
     public function deletingProject()
     {
         try {
@@ -104,7 +109,6 @@ class AppDashboard extends Component
 
             // Cleaning inputs
             $this->clearInputs();
-            // $this->cleaningArrayTeammates();
 
             session()->flash('success', 'Project deleted.');
 
@@ -115,17 +119,15 @@ class AppDashboard extends Component
             throw $e;
         }
     }
-
-    //Edutuning project
+    // Function to edit a project
     public function editProject()
     {
         try {
-            $this->validate(
-                [
-                    'title' => 'required|string|max:45',
-                    'description' => 'required',
-                ]
-            );
+            // Validate the input fields
+            $this->validate([
+                'title' => 'required|string|max:45',
+                'description' => 'required',
+            ]);
 
             // Find the project
             $this->project = Project::find($this->idProject);
@@ -136,10 +138,9 @@ class AppDashboard extends Component
                 'description' => $this->description
             ]);
 
-            // Cleaning inputs
+            // Clear input fields and IDs
             $this->clearInputs();
             $this->cleaningIds();
-            // $this->cleaningArrayTeammates();
 
             session()->flash('success', 'Project edited.');
 
@@ -150,23 +151,23 @@ class AppDashboard extends Component
         }
     }
 
-    //Creating new project
+    // Function to create a new project
     public function createProject()
     {
         try {
-            //Validating inputs project
+            // Validate the input fields
             $this->validate([
                 'title' => 'required|string|max:45',
                 'description' => 'required',
             ]);
 
-            //Creating project
+            // Create the project
             $this->project = Project::create([
                 'title' => $this->title,
                 'description' => $this->description
             ]);
 
-            //Cleaning inputs
+            // Clear input fields and IDs
             $this->clearInputs();
             $this->cleaningIds();
 
@@ -179,13 +180,13 @@ class AppDashboard extends Component
         }
     }
 
-
-    //Livewire lifecycle mounting
+    // Livewire lifecycle mounting
     public function mount()
     {
         $this->projects = Project::all();
     }
 
+    // Render the view
     public function render()
     {
         return view('livewire.app-dashboard');
