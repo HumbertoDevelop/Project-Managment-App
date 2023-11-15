@@ -82,7 +82,7 @@ class CreateTask extends Component
 
         $this->reset(['description', 'title', 'due_date', 'completed', 'badges', 'search']);
 
-        $this->emit('taskAdded');
+        $this->dispatch('taskAdded');
     }
 
     // Render the view
