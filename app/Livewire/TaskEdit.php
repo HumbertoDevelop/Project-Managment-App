@@ -19,13 +19,14 @@ class TaskEdit extends Component
     // Mount function to initialize task data
     public function mount(int $taskId): void
     {
+
         $task = Task::findOrFail($taskId);
 
         $this->task = $taskId;
         $this->description = $task->description;
         $this->title = $task->title;
         $this->due_date = $task->due_date;
-        $this->completed = $task->completed;
+        $this->completed = $task->completed == 0 ? false : true;
 
         $users = $task->users()->get();
 

@@ -24,6 +24,7 @@ class TasksSection extends Component
     public function taskEdited()
     {
         session()->flash('messageEvent', 'Task edited successfully.');
+        $this->cancelEdit();
         $this->refreshTasks();
     }
 
