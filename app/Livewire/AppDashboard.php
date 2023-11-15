@@ -4,29 +4,48 @@ namespace App\Livewire;
 
 use App\Models\Project;
 use Illuminate\Support\Facades\DB;
+use Livewire\Attributes\On;
 use Livewire\Component;
 
 class AppDashboard extends Component
 {
     public $openEdit = false;
+    public $openCreate = false;
+    public $openTasks = false;
+    public $showGIF = true;
+
+    public $tasks;
     public $idProject;
     public $selectedProject;
-    public $badges = array();
 
     public $title;
     public $description;
     public $projects;
-    public $openCreate = false;
-    public $openTasks = false;
     public $user;
     public $search;
     public $project;
+
+    public function getListeners()
+    {
+        return [
+            'cleaningIds',
+        ];
+    }
 
     //Cleaning inputs
     public function clearInputs()
     {
         $this->reset('title');
         $this->reset('description');
+    }
+
+    //Opening create modal project
+    public function openModalCreate()
+    {
+        $this->openCreate = true;
+        //Cleaning inputs
+        $this->clearInputs();
+        $this->cleaningIds();
     }
 
     //Closing create modal project
@@ -37,16 +56,14 @@ class AppDashboard extends Component
         $this->openCreate = false;
     }
 
-    //Opening create modal project
-    public function openModalTasks()
+    //Opening tasks modal project
+    public function openModalTasks($id)
     {
-        $this->openTasks = true;
-    }
 
-    //Opening create modal project
-    public function openModalCreate()
-    {
-        $this->openCreate = true;
+        $this->idProject = $id;
+        $this->openTasks = true;
+        $this->dispatch('openModalTasks', openTasks: $this->openTasks)->to(TasksSection::class);
+        $this->dispatch('thisProject', idProject: $this->idProject)->to(CreateTask::class);
     }
 
     //Closing edit modal project
@@ -73,48 +90,6 @@ class AppDashboard extends Component
         $this->selectedProject = Project::find($id);
         $this->title = $this->selectedProject->title;
         $this->description = $this->selectedProject->description;
-
-        $users = $this->selectedProject->users()->get();
-
-        $this->badges = $users->map(function ($user) {
-            return [$user];
-        })->toArray();
-    }
-
-    //Deleting collaborators from project
-    public function deletedTeammate($id)
-    {
-        //Removing collaborators from array
-        $this->badges = array_filter($this->badges, function ($user) use ($id) {
-            return $user[0]->id !== $id;
-        });
-    }
-
-    //Searching and adding collaborators to project
-    public function searchDB()
-    {
-        try {
-            $this->user = DB::table('users')
-                ->select('id', 'name', 'email')
-                ->where('email', '=', $this->search)
-                ->get();
-
-            if (count($this->user) !== 0) {
-                //Adding collaborators to array
-                array_push($this->badges, $this->user);
-            } else {
-                //Message error from database
-                session()->flash('userNotFound', 'User not found in database');
-            }
-        } catch (\Exception $e) {
-            throw $e;
-        }
-    }
-
-    //Cleaning array
-    public function cleaningArrayTeammates()
-    {
-        array_splice($this->badges, 0, count($this->badges));
     }
 
     //Deleting project
@@ -129,7 +104,7 @@ class AppDashboard extends Component
 
             // Cleaning inputs
             $this->clearInputs();
-            $this->cleaningArrayTeammates();
+            // $this->cleaningArrayTeammates();
 
             session()->flash('success', 'Project deleted.');
 
@@ -161,21 +136,10 @@ class AppDashboard extends Component
                 'description' => $this->description
             ]);
 
-            // If there's teammates in project save on relation table
-            if (count($this->badges) !== 0) {
-                $userIds = array_map(function ($user) {
-                    return $user[0]->id;
-                }, $this->badges);
-
-                $this->project->users()->sync($userIds);
-            } else {
-                $this->project->users()->detach();
-            }
-
             // Cleaning inputs
             $this->clearInputs();
             $this->cleaningIds();
-            $this->cleaningArrayTeammates();
+            // $this->cleaningArrayTeammates();
 
             session()->flash('success', 'Project edited.');
 
@@ -202,19 +166,9 @@ class AppDashboard extends Component
                 'description' => $this->description
             ]);
 
-            //If there are teammates in the project, save them in the relation table
-            if (count($this->badges) !== 0) {
-                $userIds = array_map(function ($user) {
-                    return $user[0]->id;
-                }, $this->badges);
-
-                $this->project->users()->attach($userIds);
-            }
-
             //Cleaning inputs
             $this->clearInputs();
             $this->cleaningIds();
-            $this->cleaningArrayTeammates();
 
             session()->flash('success', 'New project created.');
 
@@ -225,10 +179,11 @@ class AppDashboard extends Component
         }
     }
 
+
     //Livewire lifecycle mounting
     public function mount()
     {
-        $this->projects = DB::table('projects')->select('id', 'title', 'description')->get();
+        $this->projects = Project::all();
     }
 
     public function render()

@@ -24,6 +24,6 @@ Route::middleware([
 ])->group(function () {
     Route::get('/projects', function () {
         return view('admindashboard');
-    })->name('projects');
+    })->middleware(['auth', 'verified'])->name('projects');
     
 });

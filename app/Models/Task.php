@@ -9,11 +9,17 @@ class Task extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['title', 'description','due_date','completed'];
+    protected $fillable = ['title', 'description', 'due_date', 'completed'];
 
     // Many to many relationships
     public function projects()
     {
         return $this->belongsToMany(Project::class);
+    }
+
+    // Many to many relationships
+    public function users()
+    {
+        return $this->belongsToMany(User::class);
     }
 }

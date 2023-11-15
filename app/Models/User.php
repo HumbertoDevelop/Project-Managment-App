@@ -9,6 +9,7 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Fortify\TwoFactorAuthenticatable;
 use Laravel\Jetstream\HasProfilePhoto;
 use Laravel\Sanctum\HasApiTokens;
+use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable
 {
@@ -17,6 +18,7 @@ class User extends Authenticatable
     use HasProfilePhoto;
     use Notifiable;
     use TwoFactorAuthenticatable;
+    use HasRoles;
 
     /**
      * The attributes that are mass assignable.
@@ -63,5 +65,11 @@ class User extends Authenticatable
     public function projects()
     {
         return $this->belongsToMany(Project::class);
+    }
+    
+    // Many to many relationships
+    public function tasks()
+    {
+        return $this->belongsToMany(Task::class);
     }
 }
